@@ -20,7 +20,7 @@ func FindSumsAndMultiply(entries []int) int {
 	panic("no solution")
 }
 
-// FindThreeSumsAndMultiply https://adventofcode.com/2020/day/1 (part two)
+// FindThreeSumsAndMultiply https://adventofcode.com/2020/day/1#part2
 func FindThreeSumsAndMultiply(entries []int) int {
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i] < entries[j]

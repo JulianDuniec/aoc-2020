@@ -21,7 +21,7 @@ func TestSumAndMultiply(t *testing.T) {
 
 // BenchmarkSumAndMultiply-8   	  154111	      7520 ns/op	    3273 B/op	       7 allocs/op
 func BenchmarkSumAndMultiply(b *testing.B) {
-	input := inputIntSlice("./inputs/day_1.txt")
+	input := parseInputAsIntSlice("./inputs/day_1.txt")
 	for i := 0; i < b.N; i++ {
 		FindSumsAndMultiply(input)
 	}
@@ -29,9 +29,10 @@ func BenchmarkSumAndMultiply(b *testing.B) {
 
 func TestSumAndMultiplyFinal(t *testing.T) {
 	expected := 259716
-	actual := FindSumsAndMultiply(inputIntSlice("./inputs/day_1.txt"))
+	actual := FindSumsAndMultiply(parseInputAsIntSlice("./inputs/day_1.txt"))
 	if expected != actual {
 		t.Logf("Expected did not match actual %d %d", expected, actual)
+		t.FailNow()
 	}
 }
 
@@ -52,7 +53,7 @@ func TestThreeSumsAndMultiply(t *testing.T) {
 
 // BenchmarkThreeSumsAndMultiply-8   	  206443	      5464 ns/op	      64 B/op	       2 allocs/op
 func BenchmarkThreeSumsAndMultiply(b *testing.B) {
-	input := inputIntSlice("./inputs/day_1.txt")
+	input := parseInputAsIntSlice("./inputs/day_1.txt")
 	for i := 0; i < b.N; i++ {
 		FindThreeSumsAndMultiply(input)
 	}
@@ -60,7 +61,7 @@ func BenchmarkThreeSumsAndMultiply(b *testing.B) {
 
 func TestThreeSumsAndMultiplyFinal(t *testing.T) {
 	expected := 120637440
-	actual := FindThreeSumsAndMultiply(inputIntSlice("./inputs/day_1.txt"))
+	actual := FindThreeSumsAndMultiply(parseInputAsIntSlice("./inputs/day_1.txt"))
 	if expected != actual {
 		t.Logf("Expected did not match actual %d %d", expected, actual)
 	}
