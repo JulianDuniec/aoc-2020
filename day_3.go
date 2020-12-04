@@ -42,7 +42,6 @@ func parseTreeMap(file string) ([]int32, int) {
 				l ^= (1 << i)
 			}
 		}
-
 		res = append(res, int32(l))
 	})
 	return res, rowLen
