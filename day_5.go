@@ -2,7 +2,6 @@ package aoc
 
 import (
 	"sort"
-	"strings"
 )
 
 func decodeSeatID(encoded string) int {
@@ -32,25 +31,31 @@ func decodeSeatID(encoded string) int {
 	return row*8 + column
 }
 
-func findHighestSeatID(file string) int {
+func findHighestSeatID(reader lineReader) int {
 	max := 0
-	iterateLines(file, func(line string) {
-		line = strings.TrimSpace(line)
+	for {
+		line, eof := reader.readLine()
 		seatID := decodeSeatID(line)
 		if seatID > max {
 			max = seatID
 		}
-	})
+		if eof {
+			break
+		}
+	}
 	return max
 }
 
-func findMissingSeatID(file string) int {
+func findMissingSeatID(reader lineReader) int {
 	seatIDs := make([]int, 0)
-	iterateLines(file, func(line string) {
-		line = strings.TrimSpace(line)
-		seatID := decodeSeatID(line)
+	for {
+		line, eof := reader.readLine()
+		seatID := decodeSeatID(line + "\n")
 		seatIDs = append(seatIDs, seatID)
-	})
+		if eof {
+			break
+		}
+	}
 	sort.Slice(seatIDs, func(i, j int) bool {
 		return seatIDs[i] < seatIDs[j]
 	})

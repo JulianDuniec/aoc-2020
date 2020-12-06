@@ -16,12 +16,16 @@ type password struct {
 	password string
 }
 
-// CountValidPasswords https://adventofcode.com/2020/day/2
-func CountValidPasswords(passwords []password) int {
+func countValidPasswords(reader lineReader) int {
 	count := 0
-	for _, pwd := range passwords {
-		if isPasswordValid(pwd) {
+	for {
+		line, eof := reader.readLine()
+		password := parsePassword(line)
+		if isPasswordValid(password) {
 			count++
+		}
+		if eof {
+			break
 		}
 	}
 	return count
@@ -37,12 +41,16 @@ func isPasswordValid(password password) bool {
 	return runeCount >= password.policy.low && runeCount <= password.policy.high
 }
 
-// CountValidPasswordsAlternate https://adventofcode.com/2020/day/2#part2
-func CountValidPasswordsAlternate(passwords []password) int {
+func countValidPasswordsAlternate(reader lineReader) int {
 	count := 0
-	for _, pwd := range passwords {
-		if isPasswordValidAlternate(pwd) {
+	for {
+		line, eof := reader.readLine()
+		password := parsePassword(line)
+		if isPasswordValidAlternate(password) {
 			count++
+		}
+		if eof {
+			break
 		}
 	}
 	return count
@@ -66,35 +74,30 @@ func isPasswordValidAlternate(password password) bool {
 	return (l == low) != (l == high)
 }
 
-func parseInputAsPasswords(file string) []password {
-	res := make([]password, 0)
-	iterateLines(file, func(line string) {
-		line = strings.TrimSpace(line)
-		split := strings.Split(line, ":")
-		policyPart := split[0]
-		passwordPart := split[1]
+func parsePassword(line string) password {
+	split := strings.Split(line, ":")
+	policyPart := split[0]
+	passwordPart := split[1]
 
-		policySplit := strings.Split(policyPart, " ")
-		lowHighPart := policySplit[0]
-		letterPart := policySplit[1]
+	policySplit := strings.Split(policyPart, " ")
+	lowHighPart := policySplit[0]
+	letterPart := policySplit[1]
 
-		lowHighSplit := strings.Split(lowHighPart, "-")
-		low, err := strconv.ParseInt(strings.TrimSpace(lowHighSplit[0]), 10, 32)
-		if err != nil {
-			log.Fatalf("unable to parse low %v", err)
-		}
-		high, err := strconv.ParseInt(strings.TrimSpace(lowHighSplit[1]), 10, 32)
-		if err != nil {
-			log.Fatalf("unable to parse high %v", err)
-		}
-		res = append(res, password{
-			policy: passwordPolicy{
-				letter: rune(letterPart[0]),
-				low:    int(low),
-				high:   int(high),
-			},
-			password: strings.TrimSpace(passwordPart),
-		})
-	})
-	return res
+	lowHighSplit := strings.Split(lowHighPart, "-")
+	low, err := strconv.ParseInt(lowHighSplit[0], 10, 32)
+	if err != nil {
+		log.Fatalf("unable to parse low %v", err)
+	}
+	high, err := strconv.ParseInt(lowHighSplit[1], 10, 32)
+	if err != nil {
+		log.Fatalf("unable to parse high %v", err)
+	}
+	return password{
+		policy: passwordPolicy{
+			letter: rune(letterPart[0]),
+			low:    int(low),
+			high:   int(high),
+		},
+		password: strings.TrimSpace(passwordPart),
+	}
 }

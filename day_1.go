@@ -1,17 +1,25 @@
 package aoc
 
 import (
+	"log"
 	"sort"
+	"strconv"
 )
 
-// FindSumsAndMultiply https://adventofcode.com/2020/day/1
-func FindSumsAndMultiply(entries []int) int {
-	len := len(entries)
-	set := make(map[int]struct{}, len)
-	for _, v := range entries {
-		set[v] = struct{}{}
+func findSumsAndMultiply(reader lineReader) int {
+	set := make(map[int]struct{}, 0)
+	for {
+		line, eof := reader.readLine()
+		v, err := strconv.ParseInt(line, 10, 32)
+		if err != nil {
+			log.Fatalf("invalid input %s %v", line, err)
+		}
+		set[int(v)] = struct{}{}
+		if eof {
+			break
+		}
 	}
-	for _, v := range entries {
+	for v := range set {
 		diff := 2020 - v
 		if _, ok := set[diff]; ok {
 			return v * diff
@@ -20,8 +28,19 @@ func FindSumsAndMultiply(entries []int) int {
 	panic("no solution")
 }
 
-// FindThreeSumsAndMultiply https://adventofcode.com/2020/day/1#part2
-func FindThreeSumsAndMultiply(entries []int) int {
+func findThreeSumsAndMultiply(reader lineReader) int {
+	entries := []int{}
+	for {
+		line, eof := reader.readLine()
+		v, err := strconv.ParseInt(line, 10, 32)
+		if err != nil {
+			log.Fatalf("invalid input %s %v", line, err)
+		}
+		entries = append(entries, int(v))
+		if eof {
+			break
+		}
+	}
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i] < entries[j]
 	})

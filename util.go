@@ -2,42 +2,47 @@ package aoc
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"log"
 	"os"
-	"strconv"
-	"strings"
 )
 
-type iterateLineCb func(line string)
+type closer func() error
+type lineReader interface {
+	readLine() (string, bool)
+}
 
-func iterateLines(file string, cb iterateLineCb) {
+type bufioLineReader struct {
+	r   *bufio.Reader
+	eof bool
+}
+
+func (blr *bufioLineReader) readLine() (string, bool) {
+	if blr.eof {
+		panic("read after EOF")
+	}
+	v, err := blr.r.ReadString('\n')
+	blr.eof = err == io.EOF
+	if err != nil && blr.eof == false {
+		log.Fatalf("unable to read line %v", err)
+	}
+	lastIndex := len(v) - 1
+	if v[lastIndex] == '\n' {
+		v = v[0:lastIndex]
+	}
+	return v, blr.eof
+}
+
+func lineReaderFromFile(file string) (lineReader, closer) {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatalf("unable to open file %v", err)
 	}
-	defer f.Close()
-	reader := bufio.NewReader(f)
-	eof := false
-	for !eof {
-		line, err := reader.ReadString('\n')
-		if err == io.EOF {
-			eof = true
-		} else if err != nil {
-			log.Fatalf("unable to read line %v", err)
-		}
-		cb(line)
-	}
+
+	return &bufioLineReader{r: bufio.NewReader(f)}, f.Close
 }
 
-func parseInputAsIntSlice(file string) []int {
-	res := make([]int, 0)
-	iterateLines(file, func(line string) {
-		num, err := strconv.ParseInt(strings.TrimSpace(line), 10, 32)
-		if err != nil {
-			log.Fatalf("line did not contain a number %v", err)
-		}
-		res = append(res, int(num))
-	})
-	return res
+func lineReaderFromString(data string) lineReader {
+	return &bufioLineReader{r: bufio.NewReader(bytes.NewReader([]byte(data)))}
 }

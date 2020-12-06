@@ -5,47 +5,7 @@ import (
 	"strings"
 )
 
-func ValidatePassports(passports []map[string]string) int {
-	requiredKeys := []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
-	numValid := 0
-outer:
-	for _, passport := range passports {
-		for _, k := range requiredKeys {
-			if _, ok := passport[k]; !ok {
-				continue outer
-			}
-		}
-		numValid++
-	}
-	return numValid
-}
-
-func parsePassports(file string) []map[string]string {
-	passports := make([]map[string]string, 0)
-	var current map[string]string
-	iterateLines(file, func(line string) {
-		line = strings.TrimSpace(line)
-		if current == nil {
-			current = make(map[string]string, 0)
-		}
-		if line == "" {
-			passports = append(passports, current)
-			current = nil
-			return
-		}
-		kvpairs := strings.Split(line, " ")
-		for _, kvpair := range kvpairs {
-			split := strings.Split(kvpair, ":")
-			current[split[0]] = split[1]
-		}
-	})
-	if current != nil {
-		passports = append(passports, current)
-	}
-	return passports
-}
-
-func ValidatePassportsStrict(passports []map[string]string) int {
+func validatePassports(reader lineReader, strict bool) int {
 	requiredKeys := map[string]*regexp.Regexp{
 		"byr": regexp.MustCompile("^(19[2-8][0-9]|199[0-9]|200[0-2])$"),
 		"iyr": regexp.MustCompile("^(201[0-9]|2020)$"),
@@ -56,18 +16,41 @@ func ValidatePassportsStrict(passports []map[string]string) int {
 		"pid": regexp.MustCompile("^\\d{9}$"),
 	}
 	numValid := 0
-outer:
-	for _, passport := range passports {
-		for k, r := range requiredKeys {
-			v, ok := passport[k]
-			if !ok {
-				continue outer
-			}
-			if r.Match([]byte(v)) == false {
-				continue outer
-			}
+	var current map[string]string
+	for {
+		line, eof := reader.readLine()
+		if current == nil {
+			current = make(map[string]string, 0)
 		}
-		numValid++
+		kvpairs := strings.Split(line, " ")
+		for _, kvpair := range kvpairs {
+			split := strings.Split(kvpair, ":")
+			if len(split) == 1 {
+				continue
+			}
+			current[split[0]] = split[1]
+		}
+		if eof || line == "" {
+			valid := true
+			for k, r := range requiredKeys {
+				v, ok := current[k]
+				if !ok {
+					valid = false
+					break
+				}
+				if r.Match([]byte(v)) == false && strict {
+					valid = false
+					break
+				}
+			}
+			if valid {
+				numValid++
+			}
+			current = nil
+		}
+		if eof {
+			break
+		}
 	}
 	return numValid
 }
