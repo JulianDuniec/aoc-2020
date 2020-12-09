@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 )
 
 type closer func() error
@@ -45,4 +46,28 @@ func lineReaderFromFile(file string) (lineReader, closer) {
 
 func lineReaderFromString(data string) lineReader {
 	return &bufioLineReader{r: bufio.NewReader(bytes.NewReader([]byte(data)))}
+}
+
+func mustParseInt(s string) int {
+	v, err := strconv.ParseInt(s, 10, 32)
+	if err != nil {
+		log.Fatalf("invalid number %s %v", s, err)
+	}
+	return int(v)
+}
+
+func readNumbers(reader lineReader) []int {
+	numbers := make([]int, 0)
+	for {
+		line, eof := reader.readLine()
+		v, err := strconv.ParseInt(line, 10, 64)
+		if err != nil {
+			log.Fatalf("invalid input %s %v", line, err)
+		}
+		numbers = append(numbers, int(v))
+		if eof {
+			break
+		}
+	}
+	return numbers
 }
