@@ -56,9 +56,7 @@ func findMissingSeatID(reader lineReader) int {
 			break
 		}
 	}
-	sort.Slice(seatIDs, func(i, j int) bool {
-		return seatIDs[i] < seatIDs[j]
-	})
+	sort.Ints(seatIDs)
 	prev := -1
 	for _, seatID := range seatIDs {
 		if prev == -1 {

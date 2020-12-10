@@ -41,9 +41,7 @@ func findThreeSumsAndMultiply(reader lineReader) int {
 			break
 		}
 	}
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i] < entries[j]
-	})
+	sort.Ints(entries)
 	len := len(entries)
 	for i := 0; i < len-2; i++ {
 		j := i + 1
