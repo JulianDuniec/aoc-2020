@@ -56,6 +56,18 @@ func mustParseInt(s string) int {
 	return int(v)
 }
 
+func readStrings(reader lineReader) []string {
+	lines := make([]string, 0)
+	for {
+		line, eof := reader.readLine()
+		lines = append(lines, line)
+		if eof {
+			break
+		}
+	}
+	return lines
+}
+
 func readNumbers(reader lineReader) []int {
 	numbers := make([]int, 0)
 	for {
@@ -70,4 +82,18 @@ func readNumbers(reader lineReader) []int {
 		}
 	}
 	return numbers
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
